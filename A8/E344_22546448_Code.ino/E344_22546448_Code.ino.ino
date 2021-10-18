@@ -26,9 +26,10 @@ float SupplyVoltage ;
 float BatteryCurrent;
 float LightSensor ;
 
+
+
 //timer variables
-const int timerInterval = 1000;
-unsigned int lastTime = 0;
+unsigned int prevTime = 0;
 
 
 void setup() {
@@ -42,9 +43,9 @@ void setup() {
 
 
 void loop() {
-  int timeNow = millis();
+  int currentTime = millis();
   //Run every 1 second
-  if (timeNow - lastTime >= timerInterval)
+  if (currentTime - prevTime >= 1000)
   {
     SerialString();
     lastTime = timeNow;
