@@ -100,7 +100,6 @@ void SerialFunction()
 
 void SerialString()
 {
-charge = digitalRead(ChargeOnPin);
 BatteryVoltage = analogRead(BatteryVoltagePin)*5*0.4/(float)1023 + 5.5;
 SupplyVoltage = analogRead(SupplyVoltagePin)*22/(float)1023 + 0.3;
 
