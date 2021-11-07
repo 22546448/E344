@@ -29,6 +29,8 @@ float SupplyVoltage ;
 float BatteryCurrent;
 float LightSensor ;
 
+bool LEDStatus = false ;
+
 
 
 //timer variables
@@ -70,38 +72,68 @@ void SerialFunction()
   {
     charge = HIGH;
     digitalWrite(ChargeOnPin, charge);
-    
-    
   }
   else if(readFromSerial.equals(turnOff))
   {
     charge = LOW;
     digitalWrite(ChargeOnPin, charge);
   }
-  else
+  else if(readFromSerial.equals("false"))
+  {
+    LEDStatus = false;
+  }
+  else if(readFromSerial.equals("true"))
+  {
+    LEDStatus = true;
+  }
+  else 
   {
     PWM = (int)(255*((float)((readFromSerial[0] - 48 - 1)*100 + (readFromSerial[1] - 48)*10 + (readFromSerial[2] - 48)))/100);
   }
-  if(!(BatteryVoltage < 7.2)&&(digitalRead(ChargeOnPin) != LOW) )
-  {
-    digitalWrite(ChargeOnPin, LOW);
-  }
+
+  
+  //if(!(BatteryVoltage < 7.2)&&(digitalRead(ChargeOnPin) != LOW) )
+  //{
+  //  digitalWrite(ChargeOnPin, LOW);
+  //}
 }
 
 void SerialString()
 {
 charge = digitalRead(ChargeOnPin);
-BatteryVoltage = analogRead(BatteryVoltagePin)*5/(float)1023 + 4.3;
+BatteryVoltage = analogRead(BatteryVoltagePin)*5*0.4/(float)1023 + 5.5;
 SupplyVoltage = analogRead(SupplyVoltagePin)*22/(float)1023 + 0.3;
-BatteryCurrent = 0.5865*analogRead(BatteryCurrentPin)-150;
-LightSensor = ((analogRead(LightSensorPin)*5/(float)1023 -0.5)/3.5)*100 ;
+
+
+BatteryCurrent = -1*(analogRead(BatteryCurrentPin)*5/(float)1023-2)/(50*0.1)*1000 ;
+if(BatteryCurrent >= 15)
+{
+  BatteryCurrent = -1*(analogRead(BatteryCurrentPin)*5/(float)1023-2)/(50*0.1)*125 + 30;
+}
+if(BatteryCurrent <= 8)
+{
+  BatteryCurrent = -1*(analogRead(BatteryCurrentPin)*5/(float)1023-2)/(50*0.1)*500 - 108;
+}
+else if(BatteryCurrent <= 10.5){
+    BatteryCurrent = -1*(analogRead(BatteryCurrentPin)*5/(float)1023-2)/(50*0.1)*500 - 60;
+
+}
+
+LightSensor = ((analogRead(LightSensorPin)*5/(float)1023)-0.8)/3.5*100 ;
 if (LightSensor <= 0){
   LightSensor = 0;
 }
 else if (LightSensor >= 100){
   LightSensor = 100;
 }
-analogWrite(PWMpin,PWM);
+
+
+if(LEDStatus == true){
+  analogWrite(PWMpin,PWM);
+}
+else{
+  digitalWrite(PWMpin,LOW);
+}
 
 
 String output = "";
@@ -116,6 +148,8 @@ output += ',';
 output += LightSensor;
 output += ',';
 output += PWM;
+
+
 
 Serial.println(output); 
 }
